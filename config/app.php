@@ -121,6 +121,8 @@ return [
     |
     */
 
+    'homepage' => env('APP_HOME'),
+
     'providers' => [
 
         /*

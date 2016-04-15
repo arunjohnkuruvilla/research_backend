@@ -14,10 +14,11 @@
 Route::get('/', function()
 {
     $data = Session::get('data');
-    return View::make('user')->with('data', $data);
+    //return r')->with('data', $data);
+	return Response::json($data);
 });
-
-Route::get('user/login', array('uses'=> 'UserController@login'));
+Route::get('user', array('uses' => 'UserController@user'));
+Route::get('user/login', array('uses' => 'UserController@login'));
 Route::post('user/linkedin_complete', array(
 	'before' => 'csrf',
 	'as' => 'linkedin_complete_post',
