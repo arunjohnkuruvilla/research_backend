@@ -24,10 +24,20 @@ use App\Http\Requests;
 
 class UserController extends BaseController {
 
+	public function index() {
+		return Response::json(['status' => 'active'])->setCallback(Input::get('callback'));
+	}
+
 	public function user() {
 		if(Auth::check()){
-			$user = Auth::user()->first();
-			$details =  User::whereId($user->id)->with('college')->get()->first();
+			$profile = Input::get('id');
+			if(!empty($profile)) {
+				$id = $profile;
+			}
+			else {
+				$id = Auth::user()->id;
+			}
+			$details =  User::whereId($id)->get()->first();
 
 			//Get college name
 			$details->college = College::whereId($details->college)->get(['name'])->first()->name;
@@ -39,12 +49,12 @@ class UserController extends BaseController {
 			$response = array(
 				'status' => 'logged_in',
 				'user' => array(
-					'id' => $user->id,
-					'firstname' => $user->firstname,
-					'lastname' => $user->lastname,
-					'profilephoto' => $user->profilephoto,
-					'email' => $user->email,
-					'phone' => $user->phone,
+					'id' => $details->id,
+					'firstname' => $details->firstname,
+					'lastname' => $details->lastname,
+					'profilephoto' => $details->profilephoto==null?"img/default_profile_photo.jpg":$details->profilephoto,
+					'email' => $details->email,
+					'phone' => $details->phone,
 					'college' => $details->college,
 					'department' => $details->department,
 					'position' => $details->position
@@ -148,7 +158,7 @@ class UserController extends BaseController {
 	        }*/
 	    }
     }
-    function linkedinCompletePost() {
+    public function linkedinCompletePost() {
 
     	$user = User::where('linkedin_id', '=', Input::get('linkedin_id'))->first();
     	$user->firstname = Input::get('firstname');
@@ -162,7 +172,56 @@ class UserController extends BaseController {
     	$user->facebookURL = Input::get('facebook');
     	$user->save();
 
-    	Auth::user()->login($user);
+    	Auth::loginUsingId($user->id);
     	return Redirect::intended(Config::get('app.homepage'));	
     }
+
+    public function logout(){
+		Auth::logout();
+
+		return Response::json(['result'=>'success'])->setCallback(Input::get('callback'));
+	}
+
+	public function users() {
+		//Make sure user is logged in.
+		if(Auth::check()){
+			$user =  Auth::user();
+			$id = $user->id;
+		}
+		else {
+			return Response::json(['result'=>'fail', 'reason'=>'not_logged_in'])->setCallback(Input::get('callback'));
+		}
+
+		$query = Input::get('q', '');
+
+		if(strlen($query) >= 2){
+		
+
+			$users = User::where('firstname','LIKE','%'.$query.'%', 'AND', 'id', ' != '.$id);
+
+
+			
+			$users = $users->get(['id', 'firstname', 'lastname']);
+			$total_count = $users->count();
+		}else{
+			$total_count = 0;
+			$users = [];
+			return Response::json([
+				'result' => 'too_small_query'
+				])->setCallback(Input::get('callback'));
+		}
+		//dd('firstname','LIKE','%'.$query.'% AND id != '.$id);
+		$users->each(function($user){
+			$user->full_name = $user->firstname." ".$user->lastname;
+
+			return $user;
+		});
+
+		return Response::json([
+			'total_count' => $total_count,
+			'id' => $id,
+			'users' => $users
+			])->setCallback(Input::get('callback'));
+	}
+
 }
