@@ -12,7 +12,6 @@ use App\User;
 use App\College;
 use App\Department;
 use App\Position;
-use App\Status;
 use \Auth;
 use Redirect;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -26,19 +25,7 @@ use App\Http\Requests;
 class UserController extends BaseController {
 
 	public function index() {
-		if ( Auth::check() ) {
-			$statuses = Status::where(function($query) {
-				return $query->where('user_id', Auth::user()->id)->orWhereIn('user_id', Auth::user()->followersofmine()->lists('id'));
-			})
-			->orderBy('created_at', 'desc')
-			->get();
-
-			return View::make('timeline.index', [
-				'user' => Auth::user(),
-				'statuses' => $statuses,
-			]);
-		}
-		return view('home');
+		return Response::json(['status' => 'active'])->setCallback(Input::get('callback'));
 	}
 
 	public function user() {
@@ -150,7 +137,7 @@ class UserController extends BaseController {
 				    	$user = $user->first();
 				    	//dd($user);
 				    	Auth::loginUsingId($user->id);
-				    	return Redirect::route('home');
+				    	return Redirect::intended(Config::get('app.homepage'));
 				    }		
 				}	    	
 	            
@@ -186,13 +173,13 @@ class UserController extends BaseController {
     	$user->save();
 
     	Auth::loginUsingId($user->id);
-    	return Redirect::route('home');
+    	return Redirect::intended(Config::get('app.homepage'));	
     }
 
     public function logout(){
 		Auth::logout();
 
-		return Redirect::route('home');
+		return Response::json(['result'=>'success'])->setCallback(Input::get('callback'));
 	}
 
 	public function users() {

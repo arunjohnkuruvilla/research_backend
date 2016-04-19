@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Redirect;
 use Illuminate\Support\Facades\Auth;
 
 class Authenticate
@@ -19,9 +20,10 @@ class Authenticate
     {
         if (Auth::guard($guard)->guest()) {
             if ($request->ajax() || $request->wantsJson()) {
-                return response('Unauthorized.', 401);
+                //return response('Unauthorized.', 401);
+                return Redirect::route('home');
             } else {
-                return redirect()->guest('login');
+                return Redirect::route('home');
             }
         }
 

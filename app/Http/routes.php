@@ -11,13 +11,71 @@
 |
 */
 
-Route::get('/', array('uses' => 'UserController@index'));
-Route::get('user', array('uses' => 'UserController@user'));
-Route::get('user/login', array('uses' => 'UserController@login'));
-Route::get('user/logout', array('uses' => 'UserController@logout'));
+Route::get('/', array(
+	'uses' => 'UserController@index',
+	'as' => 'home',
+));
+
+//Route::get('user', array('uses' => 'UserController@user'));
+Route::get('user/login', array(
+	'uses' => 'UserController@login',
+	'as' => 'auth.login',
+
+));
+
+Route::get('user/logout', array(
+	'uses' => 'UserController@logout',
+	'as' => 'auth.logout',
+));
+
 Route::post('user/linkedin_complete', array(
 	'before' => 'csrf',
 	'as' => 'linkedin_complete_post',
-	'uses' => 'UserController@linkedinCompletePost'
+	'uses' => 'UserController@linkedinCompletePost',
 ));
 Route::get('users', array('uses' => 'UserController@users'));
+
+Route::get('timeline', array(
+	'uses' => 'TimelineController@getIndex',
+	'as' => 'timeline.index',
+	'middleware' => ['auth'],
+));
+
+
+/******** SEARCH ********/
+Route::get('search', array(
+	'uses' => 'SearchController@getResults',
+	'as' => 'search.results',
+	'middleware' => ['auth'],
+));
+
+/******** PROFILE ********/
+Route::get('user/{id}', array(
+	'uses' => 'ProfileController@getProfile',
+	'as' => 'profile.index',
+	'middleware' => ['auth'],
+));
+
+/******** FOLLOWERS ********/
+Route::get('followers', array(
+	'uses' => 'FollowerController@getIndex',
+	'as' => 'followers.index',
+	'middleware' => ['auth'],
+));
+Route::get('followers/add/{id}', array(
+	'uses' => 'FollowerController@follow',
+	'as' => 'follower.add',
+	'middleware' => ['auth'],
+));
+Route::get('followers/acknowledge/{id}', array(
+	'uses' => 'FollowerController@acknowledge',
+	'as' => 'follower.acknowledge',
+	'middleware' => ['auth'],
+));
+
+/******** STATUSES ********/
+Route::post('status', array(
+	'uses' => 'StatusController@postStatus',
+	'as' => 'status.post',
+	'middleware' => ['auth'],
+));
