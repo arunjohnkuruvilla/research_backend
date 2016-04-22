@@ -75,7 +75,17 @@ Route::get('followers/acknowledge/{id}', array(
 
 /******** STATUSES ********/
 Route::post('status', array(
-	'uses' => 'StatusController@postStatus',
+	'uses' => 'PostController@postStatus',
 	'as' => 'status.post',
+	'middleware' => ['auth'],
+));
+Route::post('event', array(
+	'uses' => 'PostController@postEvent',
+	'as' => 'event.post',
+	'middleware' => ['auth'],
+));
+Route::post('publication', array(
+	'uses' => 'PostController@postPublication',
+	'as' => 'publication.post',
 	'middleware' => ['auth'],
 ));

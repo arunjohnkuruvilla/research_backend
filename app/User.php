@@ -64,7 +64,4 @@ class User extends Model implements AuthenticatableContract
 		->count();
 	}
 
-	public function statuses() {
-		return $this->hasMany('App\Status', 'user_id');
-	}
 }

@@ -7,12 +7,15 @@ use Input;
 use Linkedin;
 use Config;
 use Response;
+use Carbon;
 use View;
 use App\User;
 use App\College;
 use App\Department;
 use App\Position;
+use App\Posts;
 use App\Status;
+use App\Events;
 use \Auth;
 use Redirect;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -27,15 +30,36 @@ class UserController extends BaseController {
 
 	public function index() {
 		if ( Auth::check() ) {
-			$statuses = Status::where(function($query) {
+			$posts = Posts::where(function($query) {
 				return $query->where('user_id', Auth::user()->id)->orWhereIn('user_id', Auth::user()->followersofmine()->lists('id'));
 			})
 			->orderBy('created_at', 'desc')
 			->get();
 
+			$posts->map(function ($post) {
+				//dd($status->id);
+				if($post->type == 0) {
+					$status_details = Status::where('post_id', $post->id)->get(['body'])->first();
+					$post['body'] = $status_details->body;
+				}
+				else if($post->type == 1) {
+					$status_details = Events::where('post_id', $post->id)->get()->first();
+					$pieces = explode(" ", $status_details->date_time);
+					//dd($pieces);
+					$post['name'] = $status_details->name;
+					$post['date'] = $pieces[0];
+					$post['time'] = $pieces[1];
+					$post['location'] = $status_details->location;
+					$post['description'] = $status_details->description;
+
+					//$lec_date = Carbon::createFromTimeStamp( strtotime( $status_details->date_time ) )->diffForHumans();
+					//dd($lec_date);
+				}
+			});
+			//dd($posts);
 			return View::make('timeline.index', [
 				'user' => Auth::user(),
-				'statuses' => $statuses,
+				'statuses' => $posts,
 			]);
 		}
 		return view('home');
