@@ -35,12 +35,19 @@ class FollowerController extends Controller {
 		$followers = User::join('followers', 'users.id', '=', 'followers.user_id')->where('followers.follower_id', '=', $id)->get();
 		$followers->map(function($follower) {
 			$follower->id = $follower->user_id;
+			//Get college name
+			$follower->college = College::whereId($follower->college)->get(['name'])->first()->name;
+			//Get department name
+			$follower->department = Department::whereId($follower->department)->get(['name'])->first()->name;
+			//Get position name
+			$follower->position = Position::whereId($follower->position)->get(['name'])->first()->name;
 		});
 		$new_followers = User::join('followers', 'users.id', '=', 'followers.user_id')->where('followers.follower_id', '=', $id)->where('seen', false)->get();
 		$new_followers->map(function($follower) {
 			$follower->id = $follower->user_id;
 		});
 
+		//dd($followers);
 		return View::make('followers.index', array(
 			'user' => $details,
 			'followers' => $followers,

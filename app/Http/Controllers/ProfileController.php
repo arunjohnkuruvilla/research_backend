@@ -33,11 +33,23 @@ class ProfileController extends Controller {
 			$followers = User::join('followers', 'users.id', '=', 'followers.user_id')->where('followers.follower_id', '=', $id)->get();
 			$followers->map(function($follower) {
 				$follower->id = $follower->user_id;
+
+				$follower->college = College::whereId($follower->college)->get(['name'])->first()->name;
+				//Get department name
+				$follower->department = Department::whereId($follower->department)->get(['name'])->first()->name;
+				//Get position name
+				$follower->position = Position::whereId($follower->position)->get(['name'])->first()->name;
 			});
 			$following = User::join('followers', 'users.id', '=', 'followers.follower_id')->where('followers.user_id', '=', $id)->get();
 			
 			$following->map(function($followee) {
 				$followee->id = $followee->follower_id;
+
+				$followee->college = College::whereId($followee->college)->get(['name'])->first()->name;
+				//Get department name
+				$followee->department = Department::whereId($followee->department)->get(['name'])->first()->name;
+				//Get position name
+				$followee->position = Position::whereId($followee->position)->get(['name'])->first()->name;
 			});
 
 			return View::make('profile.index', array(

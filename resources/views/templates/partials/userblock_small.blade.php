@@ -4,6 +4,7 @@
 	</a>
 	<div class="media-body">
 		<h4 class="media-heading"><a href="{{ route('profile.index', ['id' => $follow->id]) }}">{{ $follow->fullname() }}</a></h4>	
-		London, UK
+		<p>{{ $follow->position }}, {{ $follow->department }}</p>
+		<p>{{ $follow->college }}</p>
 	</div>
 </div>

@@ -46,12 +46,15 @@
 			    	</div>
 			    	<div role="tabpanel" class="tab-pane" id="upload">
 			    		<br>
-			    		<form role="form" action="{{ route('publication.post') }}" method="post">
+			    		<form role="form" action="{{ route('publication.post') }}" method="post" enctype="multipart/form-data">
 				            <div class="form-group">
-				                <input placeholder="Share your publication URL." name="name" class="form-control" />
+				                <textarea type="text" placeholder="Say something about this." name="description" class="form-control" row="2"></textarea>
 				            </div>
 				            <div class="form-group">
-				                <input type="text" placeholder="Description" name="description" class="form-control" />
+				                <input type="text" placeholder="Name" name="name" class="form-control" required/>
+				            </div>
+				            <div class="form-group">
+				                <input type="file" name="file">
 				            </div>
 				            <button type="submit" class="btn btn-default">Share</button>
 				            <input type="hidden" name="_token" value="{{ Session::token() }}">
@@ -109,8 +112,34 @@
 						        <ul class="list-inline">
 						            <li><b>Date: </b>{{ $status->date }}</li>
 						            <li><b>Time: </b>{{ $status->time }}</li>
+						            <li><b>Venue: </b>{{ $status->location }}</li>
 						            <!--<li><a href="#">Like</a></li>
 						            <li>10 likes</li>-->
+						        </ul>
+
+						        <!--Uncomment this to include reply to post feature
+						        <form role="form" action="#" method="post">
+						            <div class="form-group">
+						                <textarea name="reply-1" class="form-control" rows="2" placeholder="Reply to this status"></textarea>
+						            </div>
+						            <input type="submit" value="Reply" class="btn btn-default btn-sm">
+						        </form>-->
+						    </div>
+						</div>
+					@elseif( $status->type == 2 )
+				        <div class="media">
+						    <a class="pull-left" href="#">
+						        <img class="media-object" alt="{{ $status->user->fullname() }}" src="{{ $status->user->profilephoto==null?URL::to('/').'/img/default_profile_photo.jpg':$status->user->profilephoto }}" style="height:80px; width:80px;">
+						    </a>
+						   	<div class="media-body">
+						        <!--<h4 class="media-heading"><a href="">{{ $status->name }}</a></h4>-->
+						        <p><b>Created by: </b>{{ $status->user->fullname() }}</p>
+						        <a href="{{ URL::to('/').'/uploads/'.$status->url }}">{{ $status->name }}</a>
+						        <!--<ul class="list-inline">
+						            <li><b>Date: </b>{{ $status->date }}</li>
+						            <li><b>Time: </b>{{ $status->time }}</li>
+						            <!--<li><a href="#">Like</a></li>
+						            <li>10 likes</li>
 						        </ul>
 
 						        <!--Uncomment this to include reply to post feature

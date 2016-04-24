@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use Input;
 use Redirect;
 use App\Posts;
 use App\Status;
 use App\Events;
+use App\Publication;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -65,6 +67,41 @@ class PostController extends Controller {
 		return Redirect::route('home');
     }
     public function postPublication(Request $request) {
+
+    	$input = Input::all();
+    	//dd($input);
+
+    	$file = array_get($input,'file');
+        // SET UPLOAD PATH
+
+        $destinationPath = 'uploads';
+        // GET THE FILE EXTENSION
+
+        $extension = $file->getClientOriginalExtension();
+        // RENAME THE UPLOAD WITH RANDOM NUMBER
+
+        $fileName = rand(11111, 99999) . '.' . $extension;
+        // MOVE THE UPLOADED FILES TO THE DESTINATION DIRECTORY
+
+        $upload_success = $file->move($destinationPath, $fileName);
+        
+        // IF UPLOAD IS SUCCESSFUL SEND SUCCESS MESSAGE OTHERWISE SEND ERROR MESSAGE
+        if ($upload_success) {
+        	$user_id = Auth::user()->id;
+			$post = new Posts;
+			$post->user_id = $user_id;
+			$post->type = 2;
+			$post->save();
+
+			$event = new Publication;
+			$event->post_id = $post->id;
+			$event->name = $request->input('name');
+			$event->url = $fileName;
+			$event->description = $request->input('description');
+			$event->save();
+
+            return Redirect::route('home');
+        }
 
 		return Redirect::route('home');
     }

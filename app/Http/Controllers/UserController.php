@@ -16,6 +16,7 @@ use App\Position;
 use App\Posts;
 use App\Status;
 use App\Events;
+use App\Publication;
 use \Auth;
 use Redirect;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -54,6 +55,13 @@ class UserController extends BaseController {
 
 					//$lec_date = Carbon::createFromTimeStamp( strtotime( $status_details->date_time ) )->diffForHumans();
 					//dd($lec_date);
+				}
+				else if($post->type == 2) {
+					$status_details = Publication::where('post_id', $post->id)->get()->first();
+					//dd($pieces);
+					$post['name'] = $status_details->name;
+					$post['url'] = $status_details->url;
+					$post['description'] = $status_details->description;
 				}
 			});
 			//dd($posts);
